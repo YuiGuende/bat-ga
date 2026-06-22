@@ -157,7 +157,7 @@ export class SimulationEngine {
 
     keepInsideWorld(player, this.settings);
     resolveObstacleCollisions(player, this.world);
-    resolveCoopWallCollisions(player, this.world.coop);
+    resolveCoopWallCollisions(player, this.world.coop, true);
     this.world.stats.playerDistance += distance(previous, player);
   }
 

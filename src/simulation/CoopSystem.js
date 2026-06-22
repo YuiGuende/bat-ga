@@ -16,7 +16,7 @@ function getGateBounds(coop) {
   };
 }
 
-function getCoopWallRects(coop) {
+function getCoopWallRects(coop, isPlayer = false) {
   const thickness = coop.wallThickness;
   const gate = getGateBounds(coop);
   const walls = [
@@ -32,7 +32,7 @@ function getCoopWallRects(coop) {
     }
   ];
 
-  if (coop.closed) {
+  if (coop.closed || isPlayer) {
     walls.push({
       x: coop.x - thickness / 2,
       y: gate.top,
@@ -99,10 +99,10 @@ function resolveCircleRectCollision(entity, rect) {
   return true;
 }
 
-export function resolveCoopWallCollisions(entity, coop) {
+export function resolveCoopWallCollisions(entity, coop, isPlayer = false) {
   let collided = false;
 
-  for (const wall of getCoopWallRects(coop)) {
+  for (const wall of getCoopWallRects(coop, isPlayer)) {
     if (resolveCircleRectCollision(entity, wall)) {
       collided = true;
     }
