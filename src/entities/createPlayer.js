@@ -9,6 +9,7 @@ export function createPlayer(settings) {
     directionX: 0,
     directionY: 1,
     sprintActiveTime: 0,
-    sprintCooldownRemaining: 0
+    sprintCooldownRemaining: 0,
+    layDownTimeRemaining: 0
   };
 }

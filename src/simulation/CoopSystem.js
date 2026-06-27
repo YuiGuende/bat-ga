@@ -161,6 +161,7 @@ export function updateCoop(world, settings, deltaTime) {
       chicken.x = coop.x + coop.width / 2;
       chicken.y = coop.y + coop.height / 2 + (Math.random() - 0.5) * 40;
       chicken.coopStayTime = coop.requiredStayTime;
+      chicken.panicTriggerCount = 0;
     }
   }
 

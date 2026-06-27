@@ -8,6 +8,77 @@ function setState(chicken, state) {
   chicken.state = state;
 }
 
+function triggerCallAtEntity(world, entity, text) {
+  const callId = `call-${world.clapSequence++}`;
+  const newCall = {
+    id: callId,
+    x: entity.x,
+    y: entity.y,
+    active: true,
+    age: 0,
+    duration: 1.0,
+    radius: 0,
+    text: text,
+    textX: entity.x,
+    textY: entity.y - entity.radius,
+    textVx: (Math.random() - 0.5) * 80,
+    textVy: -120,
+    textAge: 0,
+    textMaxAge: 0.8
+  };
+  world.chickenCalls.push(newCall);
+}
+
+function updateChickenQuac(chicken, world, deltaTime) {
+  if (chicken.quacCount > 0) {
+    chicken.quacTimer -= deltaTime;
+    if (chicken.quacTimer <= 0) {
+      triggerCallAtEntity(world, chicken, "quác");
+      chicken.quacCount -= 1;
+      chicken.quacTimer = 0.35;
+    }
+  }
+}
+
+function updateAttackRetreat(chicken, world, settings, deltaTime) {
+  updateChickenQuac(chicken, world, deltaTime);
+
+  const player = world.player;
+  const dir = normalize(chicken.x - player.x, chicken.y - player.y);
+  chicken.directionX = dir.x;
+  chicken.directionY = dir.y;
+  chicken.speed = settings.chickenWanderSpeed * 1.5;
+
+  const movement = chicken.speed * deltaTime;
+  chicken.retreatDistanceRemaining -= movement;
+
+  if (chicken.retreatDistanceRemaining <= 0) {
+    setState(chicken, "ATTACK_CHARGE");
+  }
+}
+
+function updateAttackCharge(chicken, world, settings, deltaTime) {
+  updateChickenQuac(chicken, world, deltaTime);
+
+  const player = world.player;
+  const dir = normalize(player.x - chicken.x, player.y - chicken.y);
+  chicken.directionX = dir.x;
+  chicken.directionY = dir.y;
+  chicken.speed = 280;
+
+  const dist = distance(chicken, player);
+  if (dist <= chicken.radius + player.radius + 4) {
+    const knockbackDir = normalize(player.x - chicken.x, player.y - chicken.y);
+    player.x += knockbackDir.x * 30;
+    player.y += knockbackDir.y * 30;
+    player.layDownTimeRemaining = 5.0;
+
+    chicken.panicTriggerCount = 0;
+    setState(chicken, "WANDER");
+    chicken.wanderTimer = 2.0;
+  }
+}
+
 function clamp01(value) {
   return Math.max(0, Math.min(1, value));
 }
@@ -123,6 +194,15 @@ function updateWanderAndPeck(chicken, settings, deltaTime) {
 }
 
 function updateChickenIntent(chicken, world, settings, deltaTime) {
+  if (chicken.state === "ATTACK_RETREAT") {
+    updateAttackRetreat(chicken, world, settings, deltaTime);
+    return;
+  }
+  if (chicken.state === "ATTACK_CHARGE") {
+    updateAttackCharge(chicken, world, settings, deltaTime);
+    return;
+  }
+
   chicken.alertRadius = settings.chickenAlertRadius;
   chicken.pressureRadius = settings.chickenPressureRadius;
   chicken.panicRadius = settings.chickenPanicRadius;
@@ -139,8 +219,20 @@ function updateChickenIntent(chicken, world, settings, deltaTime) {
 
   if (playerDistance <= chicken.panicRadius) {
     if (chicken.state !== "PANIC" || chicken.directionLockRemaining <= 0) {
+      const isNewPanic = chicken.state !== "PANIC";
       chooseEscapeDirection(chicken, world.player, settings, true, playerDistance);
       world.stats.panicCount += 1;
+
+      if (isNewPanic) {
+        chicken.panicTriggerCount = (chicken.panicTriggerCount || 0) + 1;
+        if (chicken.panicTriggerCount >= 6) {
+          chicken.quacCount = 3;
+          chicken.quacTimer = 0;
+          chicken.retreatDistanceRemaining = 70;
+          setState(chicken, "ATTACK_RETREAT");
+          return;
+        }
+      }
     }
     setState(chicken, "PANIC");
     chicken.speed = getEscapeSpeed(chicken, playerDistance, settings, true);

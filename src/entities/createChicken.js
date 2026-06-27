@@ -49,6 +49,10 @@ export function createChicken(index, type, settings) {
 
     coopStayTime: 0,
     secured: false,
-    distanceTravelled: 0
+    distanceTravelled: 0,
+    panicTriggerCount: 0,
+    quacCount: 0,
+    quacTimer: 0,
+    retreatDistanceRemaining: 0
   };
 }

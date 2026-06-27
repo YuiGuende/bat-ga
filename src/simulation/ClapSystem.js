@@ -46,6 +46,18 @@ export function updateClapWaves(world, settings, deltaTime) {
       const direction = randomDirection();
       chicken.secured = false;
       chicken.coopStayTime = 0;
+
+      if (chicken.state !== "CLAP_PANIC" && chicken.state !== "PANIC" && !chicken.state.startsWith("ATTACK")) {
+        chicken.panicTriggerCount = (chicken.panicTriggerCount || 0) + 1;
+        if (chicken.panicTriggerCount >= 6) {
+          chicken.quacCount = 3;
+          chicken.quacTimer = 0;
+          chicken.retreatDistanceRemaining = 70;
+          chicken.state = "ATTACK_RETREAT";
+          continue;
+        }
+      }
+
       chicken.state = "CLAP_PANIC";
       chicken.directionX = direction.x;
       chicken.directionY = direction.y;

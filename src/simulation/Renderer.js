@@ -13,6 +13,7 @@ import lanAnhWalkDown from "../asset/lan_anh_move/lan_anh_walk_down.png";
 import lanAnhWalkLeft from "../asset/lan_anh_move/lan_anh_walk_left.png";
 import lanAnhWalkRight from "../asset/lan_anh_move/lan_anh_walk_right.png";
 import lanAnhWalkUp from "../asset/lan_anh_move/lan_anh_walk_up.png";
+import lanAnhLayDown from "../asset/lan_anh_move/lan_anh_lay_down.png";
 
 export class Renderer {
   constructor(canvas, settings) {
@@ -35,7 +36,8 @@ export class Renderer {
       lan_anh_walk_down: new Image(),
       lan_anh_walk_left: new Image(),
       lan_anh_walk_right: new Image(),
-      lan_anh_walk_up: new Image()
+      lan_anh_walk_up: new Image(),
+      lan_anh_lay_down: new Image()
     };
 
     this.images.background.src = backgroundImage;
@@ -53,6 +55,7 @@ export class Renderer {
     this.images.lan_anh_walk_left.src = lanAnhWalkLeft;
     this.images.lan_anh_walk_right.src = lanAnhWalkRight;
     this.images.lan_anh_walk_up.src = lanAnhWalkUp;
+    this.images.lan_anh_lay_down.src = lanAnhLayDown;
   }
 
   setSettings(settings) {
@@ -345,11 +348,36 @@ export class Renderer {
       ctx.stroke();
       ctx.restore();
     }
+
+    // Angry Red Flashing Aura Overlay for chickens panicked 3 or more times
+    if (chicken.panicTriggerCount >= 3 && !chicken.secured) {
+      const flashFreq = chicken.panicTriggerCount === 3 ? 2 : chicken.panicTriggerCount === 4 ? 4.5 : 7.5;
+      const elapsed = performance.now() / 1000;
+      const flashVal = (Math.sin(elapsed * Math.PI * 2 * flashFreq) + 1) / 2; // oscillates 0 to 1
+
+      ctx.save();
+      // Glowing red stroke aura
+      ctx.strokeStyle = `rgba(255, 0, 0, ${0.4 + flashVal * 0.5})`;
+      ctx.lineWidth = 3;
+      ctx.shadowColor = "red";
+      ctx.shadowBlur = 6 + flashVal * 8;
+      ctx.beginPath();
+      ctx.arc(chicken.x, chicken.y, chicken.radius * 1.35, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Semi-transparent red overlay
+      ctx.fillStyle = `rgba(255, 0, 0, ${flashVal * 0.28})`;
+      ctx.beginPath();
+      ctx.arc(chicken.x, chicken.y, chicken.radius * 1.35, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
   }
 
   drawPlayer(ctx, player, elapsedTime = 0) {
     ctx.save();
-    const sprinting = player.sprintActiveTime > 0;
+    const isStunned = (player.layDownTimeRemaining || 0) > 0;
+    const sprinting = player.sprintActiveTime > 0 && !isStunned;
     if (sprinting) {
       ctx.strokeStyle = "rgba(255, 245, 180, 0.75)";
       ctx.lineWidth = 5;
@@ -359,7 +387,7 @@ export class Renderer {
     }
 
     // Determine movement direction and state
-    const isMoving = Math.abs(player.velocityX) > 0.01 || Math.abs(player.velocityY) > 0.01;
+    const isMoving = !isStunned && (Math.abs(player.velocityX) > 0.01 || Math.abs(player.velocityY) > 0.01);
     let direction = "down";
     if (isMoving) {
       if (Math.abs(player.directionX) > Math.abs(player.directionY)) {
@@ -373,7 +401,9 @@ export class Renderer {
     let img = this.images.lan_anh_idle;
     let animSpeed = 6; // frames per second
 
-    if (isMoving) {
+    if (isStunned) {
+      img = this.images.lan_anh_lay_down;
+    } else if (isMoving) {
       if (sprinting) {
         animSpeed = 12;
         if (direction === "up") img = this.images.lan_anh_run_up;

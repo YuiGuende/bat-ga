@@ -97,21 +97,30 @@ export class SimulationEngine {
     this.world.chickenCallCooldownRemaining = Math.max(0, (this.world.chickenCallCooldownRemaining || 0) - deltaTime);
     this.world.grainDropCooldownRemaining = Math.max(0, (this.world.grainDropCooldownRemaining || 0) - deltaTime);
 
-    if (this.input.consumeDropPressed() && (this.world.grainDropCooldownRemaining || 0) <= 0) {
-      if (dropGrain(this.world, this.settings)) {
-        this.world.grainDropCooldownRemaining = this.settings.grainDropCooldown;
-      }
-    }
+    const isStunned = (this.world.player.layDownTimeRemaining || 0) > 0;
 
-    if (this.input.consumeClapPressed() && (this.world.clapCooldownRemaining || 0) <= 0) {
-      if (createClapWave(this.world, this.settings)) {
-        this.world.clapCooldownRemaining = this.settings.clapCooldown;
+    if (!isStunned) {
+      if (this.input.consumeDropPressed() && (this.world.grainDropCooldownRemaining || 0) <= 0) {
+        if (dropGrain(this.world, this.settings)) {
+          this.world.grainDropCooldownRemaining = this.settings.grainDropCooldown;
+        }
       }
-    }
 
-    if (this.input.consumeCallPressed() && (this.world.chickenCallCooldownRemaining || 0) <= 0) {
-      triggerChickenCall(this.world, this.settings);
-      this.world.chickenCallCooldownRemaining = this.settings.chickenCallCooldown;
+      if (this.input.consumeClapPressed() && (this.world.clapCooldownRemaining || 0) <= 0) {
+        if (createClapWave(this.world, this.settings)) {
+          this.world.clapCooldownRemaining = this.settings.clapCooldown;
+        }
+      }
+
+      if (this.input.consumeCallPressed() && (this.world.chickenCallCooldownRemaining || 0) <= 0) {
+        triggerChickenCall(this.world, this.settings);
+        this.world.chickenCallCooldownRemaining = this.settings.chickenCallCooldown;
+      }
+    } else {
+      // Consume inputs so they don't trigger after recovery
+      this.input.consumeDropPressed();
+      this.input.consumeClapPressed();
+      this.input.consumeCallPressed();
     }
 
     this.updatePlayer(deltaTime);
@@ -129,21 +138,28 @@ export class SimulationEngine {
 
   updatePlayer(deltaTime) {
     const player = this.world.player;
+
+    // Decrement lay down timer
+    player.layDownTimeRemaining = Math.max(0, (player.layDownTimeRemaining || 0) - deltaTime);
+    const isStunned = (player.layDownTimeRemaining || 0) > 0;
+
     let x = 0;
     let y = 0;
 
-    if (this.input.isDown("a", "arrowleft")) x -= 1;
-    if (this.input.isDown("d", "arrowright")) x += 1;
-    if (this.input.isDown("w", "arrowup")) y -= 1;
-    if (this.input.isDown("s", "arrowdown")) y += 1;
+    if (!isStunned) {
+      if (this.input.isDown("a", "arrowleft")) x -= 1;
+      if (this.input.isDown("d", "arrowright")) x += 1;
+      if (this.input.isDown("w", "arrowup")) y -= 1;
+      if (this.input.isDown("s", "arrowdown")) y += 1;
+    }
 
     const direction = normalize(x, y);
-    const isMoving = x !== 0 || y !== 0;
+    const isMoving = !isStunned && (x !== 0 || y !== 0);
     if (isMoving) {
       player.directionX = direction.x;
       player.directionY = direction.y;
     }
-    const wantsSprint = this.input.isDown("shift") && isMoving;
+    const wantsSprint = !isStunned && this.input.isDown("shift") && isMoving;
 
     player.sprintActiveTime = Math.max(0, player.sprintActiveTime - deltaTime);
     if (player.sprintActiveTime <= 0) {
@@ -155,7 +171,7 @@ export class SimulationEngine {
       player.sprintCooldownRemaining = this.settings.playerSprintCooldown;
     }
 
-    const sprinting = player.sprintActiveTime > 0;
+    const sprinting = !isStunned && player.sprintActiveTime > 0;
     const speed = sprinting ? this.settings.playerSpeed * this.settings.playerSprintMultiplier : this.settings.playerSpeed;
     player.speed = speed;
     player.velocityX = isMoving ? direction.x * speed : 0;
