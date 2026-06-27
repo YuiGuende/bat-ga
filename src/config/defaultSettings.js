@@ -5,7 +5,10 @@ export const DEFAULT_SETTINGS = {
   playerSpeed: 180,
   playerSprintMultiplier: 2.2,
   playerSprintDuration: 3,
-  playerSprintCooldown: 3,
+  playerSprintCooldown: 10,
+  clapCooldown: 15,
+  chickenCallCooldown: 17,
+  grainDropCooldown: 17,
 
   chickenAlertRadius: 98,
   chickenPressureRadius: 63,

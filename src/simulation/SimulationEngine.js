@@ -92,16 +92,26 @@ export class SimulationEngine {
   update(deltaTime) {
     this.world.stats.elapsedTime += deltaTime;
 
-    if (this.input.consumeDropPressed()) {
-      dropGrain(this.world, this.settings);
+    // Update skill cooldowns
+    this.world.clapCooldownRemaining = Math.max(0, (this.world.clapCooldownRemaining || 0) - deltaTime);
+    this.world.chickenCallCooldownRemaining = Math.max(0, (this.world.chickenCallCooldownRemaining || 0) - deltaTime);
+    this.world.grainDropCooldownRemaining = Math.max(0, (this.world.grainDropCooldownRemaining || 0) - deltaTime);
+
+    if (this.input.consumeDropPressed() && (this.world.grainDropCooldownRemaining || 0) <= 0) {
+      if (dropGrain(this.world, this.settings)) {
+        this.world.grainDropCooldownRemaining = this.settings.grainDropCooldown;
+      }
     }
 
-    if (this.input.consumeClapPressed()) {
-      createClapWave(this.world, this.settings);
+    if (this.input.consumeClapPressed() && (this.world.clapCooldownRemaining || 0) <= 0) {
+      if (createClapWave(this.world, this.settings)) {
+        this.world.clapCooldownRemaining = this.settings.clapCooldown;
+      }
     }
 
-    if (this.input.consumeCallPressed()) {
+    if (this.input.consumeCallPressed() && (this.world.chickenCallCooldownRemaining || 0) <= 0) {
       triggerChickenCall(this.world, this.settings);
+      this.world.chickenCallCooldownRemaining = this.settings.chickenCallCooldown;
     }
 
     this.updatePlayer(deltaTime);

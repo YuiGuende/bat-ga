@@ -45,7 +45,10 @@ export function createWorld(settings) {
     grainCharges: settings.grainDropCount,
     grainRechargeTimer: 0,
     grainSequence: 0,
-    clapSequence: 0
+    clapSequence: 0,
+    clapCooldownRemaining: 0,
+    chickenCallCooldownRemaining: 0,
+    grainDropCooldownRemaining: 0
   };
 }
 
@@ -70,6 +73,24 @@ export function snapshotWorld(world, settings) {
       active: world.player.sprintActiveTime > 0,
       activeTime: world.player.sprintActiveTime,
       cooldownRemaining: world.player.sprintActiveTime > 0 ? 0 : world.player.sprintCooldownRemaining
+    },
+    cooldowns: {
+      sprint: {
+        current: world.player.sprintActiveTime > 0 ? 0 : world.player.sprintCooldownRemaining,
+        max: settings.playerSprintCooldown
+      },
+      clap: {
+        current: world.clapCooldownRemaining || 0,
+        max: settings.clapCooldown
+      },
+      call: {
+        current: world.chickenCallCooldownRemaining || 0,
+        max: settings.chickenCallCooldown
+      },
+      grain: {
+        current: world.grainDropCooldownRemaining || 0,
+        max: settings.grainDropCooldown
+      }
     },
     stats: {
       ...world.stats,

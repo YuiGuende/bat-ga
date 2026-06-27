@@ -61,7 +61,7 @@ export default function ControlPanel({ settings, setSettings, snapshot, onReset,
         <Slider label="Speed" value={settings.playerSpeed} min={60} max={180} onChange={(value) => setSetting("playerSpeed", value)} />
         <Slider label="Sprint" value={settings.playerSprintMultiplier} min={1.2} max={4} step={0.1} unit="x" onChange={(value) => setSetting("playerSprintMultiplier", value)} />
         <Slider label="Sprint time" value={settings.playerSprintDuration} min={1} max={6} step={0.5} unit="s" onChange={(value) => setSetting("playerSprintDuration", value)} />
-        <Slider label="Cooldown" value={settings.playerSprintCooldown} min={1} max={8} step={0.5} unit="s" onChange={(value) => setSetting("playerSprintCooldown", value)} />
+        <Slider label="Cooldown" value={settings.playerSprintCooldown} min={1} max={15} step={0.5} unit="s" onChange={(value) => setSetting("playerSprintCooldown", value)} />
       </section>
 
       <section className="controlGroup">

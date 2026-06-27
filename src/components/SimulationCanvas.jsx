@@ -1,7 +1,8 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import { SimulationEngine } from "../simulation/SimulationEngine.js";
+import SkillBarOverlay from "./SkillBarOverlay.jsx";
 
-const SimulationCanvas = forwardRef(function SimulationCanvas({ settings, onSnapshot, startPaused }, ref) {
+const SimulationCanvas = forwardRef(function SimulationCanvas({ settings, onSnapshot, startPaused, snapshot }, ref) {
   const canvasRef = useRef(null);
   const engineRef = useRef(null);
 
@@ -47,6 +48,7 @@ const SimulationCanvas = forwardRef(function SimulationCanvas({ settings, onSnap
         height={settings.worldHeight}
         aria-label="Chicken herding simulation canvas"
       />
+      <SkillBarOverlay snapshot={snapshot} />
     </div>
   );
 });

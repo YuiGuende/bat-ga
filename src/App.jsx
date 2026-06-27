@@ -82,6 +82,7 @@ export default function App() {
           settings={settings}
           onSnapshot={setSnapshot}
           startPaused={instructionsOpen}
+          snapshot={snapshot}
         />
       </section>
 
