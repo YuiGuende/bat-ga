@@ -11,7 +11,42 @@ export default function App() {
   const [snapshot, setSnapshot] = useState(null);
   const [instructionsOpen, setInstructionsOpen] = useState(true);
   const [panelsVisible, setPanelsVisible] = useState(false);
+  const [warnedChickens, setWarnedChickens] = useState(new Set());
+  const [toasts, setToasts] = useState([]);
   const simulationRef = useRef(null);
+
+  const addToast = (message) => {
+    const id = Date.now() + Math.random().toString();
+    setToasts((prev) => [...prev, { id, message }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 4500);
+  };
+
+  useEffect(() => {
+    if (!snapshot || !snapshot.chickens) return;
+
+    let changed = false;
+    const nextWarned = new Set(warnedChickens);
+
+    snapshot.chickens.forEach((chicken) => {
+      const isAngry = chicken.panicTriggerCount >= 3;
+      const alreadyWarned = warnedChickens.has(chicken.id);
+
+      if (isAngry && !alreadyWarned && !chicken.secured) {
+        addToast(`⚠️ Cảnh báo: Có gà bị hoảng sợ! Nó có thể đá bạn nếu bị chọc quá nhiều!`);
+        nextWarned.add(chicken.id);
+        changed = true;
+      } else if (!isAngry && alreadyWarned) {
+        nextWarned.delete(chicken.id);
+        changed = true;
+      }
+    });
+
+    if (changed) {
+      setWarnedChickens(nextWarned);
+    }
+  }, [snapshot, warnedChickens]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -87,9 +122,17 @@ export default function App() {
       </section>
 
       {panelsVisible && <StatisticsPanel snapshot={snapshot} />}
-      
+
       <CompletionModal snapshot={snapshot} onReset={() => simulationRef.current?.reset()} />
       <InstructionModal open={instructionsOpen} onClose={handleCloseInstructions} />
+
+      <div className="toastContainer">
+        {toasts.map((toast) => (
+          <div key={toast.id} className="toast">
+            {toast.message}
+          </div>
+        ))}
+      </div>
     </main>
   );
 }

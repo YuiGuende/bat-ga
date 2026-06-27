@@ -172,10 +172,17 @@ export class Renderer {
         const fontSize = 14 + progress * 24;
         const alpha = Math.max(0, 1 - progress);
 
-        ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
         ctx.font = `bold ${fontSize}px "Inter", sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
+
+        // White outline stroke
+        ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+        ctx.lineWidth = 4;
+        ctx.strokeText(call.text, call.textX, call.textY);
+
+        // Black fill
+        ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`;
         ctx.fillText(call.text, call.textX, call.textY);
         ctx.restore();
       }
@@ -425,7 +432,7 @@ export class Renderer {
 
       // Draw preserving correct aspect ratio.
       // Make the character's height proportional to the collision radius.
-      const targetHeight = player.radius * 2 * 3.8;
+      const targetHeight = player.radius * 2 * 3.8 * 0.6;
       const targetWidth = targetHeight * (frameWidth / frameHeight);
 
       ctx.translate(player.x, player.y);

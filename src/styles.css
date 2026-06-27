@@ -426,3 +426,57 @@ canvas {
   z-index: 5;
   background: rgba(0, 0, 0, 0.15);
 }
+
+/* Toast Notifications */
+.toastContainer {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  pointer-events: none;
+}
+
+.toast {
+  pointer-events: auto;
+  background: rgba(220, 60, 60, 0.93);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  font-weight: 600;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  box-shadow: 0 8px 24px rgba(35, 10, 10, 0.25);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  max-width: 480px;
+  text-align: center;
+  animation: toastEntrance 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, toastExit 0.35s 4.15s forwards;
+  transition: opacity 0.35s ease;
+}
+
+@keyframes toastEntrance {
+  0% {
+    transform: translateY(-20px) scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes toastExit {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-15px) scale(0.92);
+    opacity: 0;
+  }
+}

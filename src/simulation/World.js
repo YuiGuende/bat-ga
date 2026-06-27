@@ -101,7 +101,8 @@ export function snapshotWorld(world, settings) {
       type: chicken.type,
       state: chicken.state,
       secured: chicken.secured,
-      coopStayTime: chicken.coopStayTime
+      coopStayTime: chicken.coopStayTime,
+      panicTriggerCount: chicken.panicTriggerCount
     }))
   };
 }

@@ -8,10 +8,18 @@ export default function InstructionModal({ open, onClose }) {
       <div className="completionModal" style={{ width: "min(480px, 100%)", maxHeight: "90vh", overflow: "auto" }}>
         <p className="eyebrow" style={{ color: "#66714b", fontWeight: "800", fontSize: "0.8rem", textTransform: "uppercase" }}>Hướng Dẫn</p>
         <h2 id="instruction-title" style={{ fontSize: "1.4rem", color: "#253222", marginBottom: "16px" }}>Cách Chơi Bắt Gà</h2>
-        
+
         <div style={{ display: "grid", gap: "12px", fontSize: "0.88rem", color: "#3c463b", marginBottom: "20px", textAlign: "left" }}>
           <div>
+            <strong> Mục Tiêu: Cố gắng lùa và nhốt được tất cả con gà vào chuồng.</strong>
+            <br></br>
+            Tips: dụ các con gà lại gần cửa chuồng và đẩy chúng vào
+          </div>
+          <div>
             <strong>🚶 Di chuyển:</strong> Dùng các phím <strong>W, A, S, D</strong> hoặc <strong>Phím mũi tên</strong> để điều khiển nhân vật chạy.
+          </div>
+          <div>
+            <strong>🚪 Đóng/Mở chuồng:</strong> Nhấn phím <strong>L</strong> để khóa/mở cửa lồng. Gà chỉ chui vào và được nhốt khi lồng mở.
           </div>
           <div>
             <strong>🏃 Chạy nhanh:</strong> Giữ <strong>Shift</strong> khi di chuyển để tăng tốc (Sprint).
@@ -24,12 +32,6 @@ export default function InstructionModal({ open, onClose }) {
           </div>
           <div>
             <strong>🔔 Vỗ tay:</strong> Nhấn phím <strong>K</strong> để vỗ tay tạo sóng âm làm gà hoảng sợ chạy ra xa.
-          </div>
-          <div>
-            <strong>🚪 Đóng/Mở chuồng:</strong> Nhấn phím <strong>L</strong> để khóa/mở cửa lồng. Gà chỉ chui vào và được nhốt khi lồng mở.
-          </div>
-          <div>
-            <strong>⏸️ Tạm dừng:</strong> Nhấn phím <strong>P</strong> để dừng game.
           </div>
           <div style={{ borderTop: "1px solid rgba(0, 0, 0, 0.1)", paddingTop: "8px", fontSize: "0.8rem", color: "#66714b", fontStyle: "italic" }}>
             * Nhấn phím <strong>ESC</strong> bất kỳ lúc nào để ẩn/hiện bảng hướng dẫn này. Khi bảng mở game sẽ tự động tạm dừng.
