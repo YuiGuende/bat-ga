@@ -38,6 +38,13 @@ export default function SkillBarOverlay({ snapshot }) {
       key: "K",
       emoji: "👏",
       cooldown: cooldowns.clap
+    },
+    {
+      id: "gate",
+      name: snapshot.coopClosed ? "Mở cửa chuồng" : "Đóng cửa chuồng",
+      key: "L",
+      emoji: snapshot.coopClosed ? "🔒" : "🔓",
+      cooldown: { current: 0, max: 1 }
     }
   ];
 

@@ -4,12 +4,15 @@ import ControlPanel from "./components/ControlPanel.jsx";
 import StatisticsPanel from "./components/StatisticsPanel.jsx";
 import CompletionModal from "./components/CompletionModal.jsx";
 import InstructionModal from "./components/InstructionModal.jsx";
+import TutorialVideoModal from "./components/TutorialVideoModal.jsx";
 import { DEFAULT_SETTINGS } from "./config/defaultSettings.js";
 
 export default function App() {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
   const [snapshot, setSnapshot] = useState(null);
   const [instructionsOpen, setInstructionsOpen] = useState(true);
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [hasShownTutorial, setHasShownTutorial] = useState(false);
   const [panelsVisible, setPanelsVisible] = useState(false);
   const [warnedChickens, setWarnedChickens] = useState(new Set());
   const [toasts, setToasts] = useState([]);
@@ -48,27 +51,47 @@ export default function App() {
     }
   }, [snapshot, warnedChickens]);
 
+  const toggleInstructions = () => {
+    if (videoModalOpen) return;
+
+    setInstructionsOpen((prev) => {
+      const next = !prev;
+      if (next) {
+        simulationRef.current?.pause();
+      } else {
+        if (!hasShownTutorial) {
+          setVideoModalOpen(true);
+        } else {
+          simulationRef.current?.resume();
+        }
+      }
+      return next;
+    });
+  };
+
   useEffect(() => {
     const handleKeyDown = (event) => {
       if (event.key === "Escape") {
-        setInstructionsOpen((prev) => {
-          const next = !prev;
-          if (next) {
-            simulationRef.current?.pause();
-          } else {
-            simulationRef.current?.resume();
-          }
-          return next;
-        });
+        toggleInstructions();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, []);
+  }, [hasShownTutorial, videoModalOpen]);
 
   const handleCloseInstructions = () => {
     setInstructionsOpen(false);
+    if (!hasShownTutorial) {
+      setVideoModalOpen(true);
+    } else {
+      simulationRef.current?.resume();
+    }
+  };
+
+  const handleCloseVideoModal = () => {
+    setVideoModalOpen(false);
+    setHasShownTutorial(true);
     simulationRef.current?.resume();
   };
 
@@ -118,6 +141,7 @@ export default function App() {
           onSnapshot={setSnapshot}
           startPaused={instructionsOpen}
           snapshot={snapshot}
+          onEscClick={toggleInstructions}
         />
       </section>
 
@@ -125,6 +149,7 @@ export default function App() {
 
       <CompletionModal snapshot={snapshot} onReset={() => simulationRef.current?.reset()} />
       <InstructionModal open={instructionsOpen} onClose={handleCloseInstructions} />
+      <TutorialVideoModal open={videoModalOpen} onClose={handleCloseVideoModal} />
 
       <div className="toastContainer">
         {toasts.map((toast) => (
