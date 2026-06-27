@@ -16,7 +16,7 @@ export const DEFAULT_SETTINGS = {
 
   chickenWanderSpeed: 18,
   chickenEscapeSpeed: 58,
-  chickenPanicSpeed: 93,
+  chickenPanicSpeed: 100,
   chickenEscapeBurstMultiplier: 1.5,
   chickenPanicBurstMultiplier: 3.2,
   roosterEscapeSpeed: 90,
